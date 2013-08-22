@@ -35,8 +35,12 @@ def get_response_(url):
             'Content-Type': 'application/json',
             'Accept': 'application/json'
             }
-    request = requests.get(url,headers=headers)
-    return request.json()
+    try:
+        request = requests.get(url,headers=headers)
+        return request.json()
+    except requests.exceptions.RequestException as error:
+        print '''Unknown: Fatal error when reading request: %s''' % error
+        sys.exit(3)
 
 def get_measurements( measurement_id):
     '''Fetch a measuerment with it=measurement_id'''
