@@ -4,6 +4,7 @@ import sys
 import time
 import argparse
 import urllib2
+import requests
 import json
 
 
@@ -14,7 +15,7 @@ def ensure_list(list_please):
     else:
         return list_please
 
-def get_response (url):
+def get_response(url):
     '''Fetch a Json Object from url'''
     #print url
     request = JsonRequest(url)
@@ -28,6 +29,14 @@ def get_response (url):
                 (%s): %s''' % (error.code, error.read())
         sys.exit(3)
 
+def get_response_(url):
+    '''Fetch a Json Object from url'''
+    headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+            }
+    request = requests.get(url,headers=headers)
+    return request.json()
 
 def get_measurements( measurement_id):
     '''Fetch a measuerment with it=measurement_id'''
