@@ -37,9 +37,15 @@ def get_response_(url):
             }
     try:
         request = requests.get(url,headers=headers)
-        return request.json()
+        request.raise_for_status()
     except requests.exceptions.RequestException as error:
         print '''Unknown: Fatal error when reading request: %s''' % error
+        sys.exit(3)
+
+    if request.status_code in [200]:
+        return request.json()
+    else:
+        print '''Unexpected non-fatal status code: %s''' % request.status_code
         sys.exit(3)
 
 def get_measurements( measurement_id):
