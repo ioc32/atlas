@@ -3,7 +3,6 @@
 import sys
 import time
 import argparse
-import urllib2
 import requests
 import json
 
@@ -17,20 +16,6 @@ def ensure_list(list_please):
 
 def get_response(url):
     '''Fetch a Json Object from url'''
-    #print url
-    request = JsonRequest(url)
-    try:
-        conn = urllib2.urlopen(request)
-        json_data = json.load(conn)
-        conn.close()
-        return json_data
-    except urllib2.HTTPError as error:
-        print '''Unknown: Fatal error when reading request
-                (%s): %s''' % (error.code, error.read())
-        sys.exit(3)
-
-def get_response_(url):
-    '''Fetch a Json Object from url'''
     headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
@@ -42,13 +27,13 @@ def get_response_(url):
         print '''Unknown: Fatal error when reading request: %s''' % error
         sys.exit(3)
 
-    if request.status_code in [200]:
+    if request.status_code in [200, 201, 202]:
         return request.json()
     else:
         print '''Unexpected non-fatal status code: %s''' % request.status_code
         sys.exit(3)
 
-def get_measurements( measurement_id):
+def get_measurements(measurement_id):
     '''Fetch a measuerment with it=measurement_id'''
     url = "https://atlas.ripe.net/api/v1/measurement/%s/latest/" \
             % measurement_id
@@ -165,13 +150,13 @@ class Measurment:
         parser.add_argument("measurement_id",
                 help="Measuerment ID to check")
         parser.add_argument('-w', '--warn-probes', type=int, default=2,
-                help='WARN if # probes have a warn considtion')
+                help='WARN if # probes have a warn condition')
         parser.add_argument('-c', '--crit-probes', type=int, default=1,
-                help='ERROR if # probes have a warn considtion')
+                help='ERROR if # probes have a warn condition')
         parser.add_argument('-W', '--warn-mesuerment', type=int, default=2,
-                help='WARN if # mesuerment have a warn considtion')
+                help='WARN if # mesuerment have a warn condition')
         parser.add_argument('-C', '--crit-mesuerment', type=int, default=1,
-                help='ERROR if # mesuerment have a warn considtion')
+                help='ERROR if # mesuerment have a warn condition')
         parser.add_argument('--max_measurement_age', type=int, default=3600,
                 help='The max age of a measuerment in unix time')
 
@@ -822,16 +807,6 @@ class MeasurmentDnsSOA(MeasurmentDns):
         MeasurmentDns.check(self, args, message)
         for ans in self.answer:
             ans.check(args, message)
-
- 
-class JsonRequest(urllib2.Request):
-    '''Object to make a Json HTTP request'''
-    def __init__(self, url):
-        urllib2.Request.__init__(self, url)
-        self.add_header("Content-Type", "application/json")
-        self.add_header("Accept", "application/json")
-
-
 
 def arg_parse():
     """Parse arguments"""
